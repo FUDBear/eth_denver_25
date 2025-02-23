@@ -1,4 +1,4 @@
-# eth_denver_25
+# ETH Denver 2025
 Project Repo For ETH Denver 2025
 
 ## Project Overview
