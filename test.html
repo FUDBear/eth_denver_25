@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        #debug-console {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 150px;
+          background: rgba(0, 0, 0, 0.8);
+          color: #ffffff;
+          font-size: 12px;
+          overflow-y: auto;
+          padding: 10px;
+          box-sizing: border-box;
+          z-index: 1000;
+          display: none;
+        }
+        #debug-console.active {
+          display: block;
+        }
+        #debug-console-toggle {
+          position: fixed;
+          bottom: 160px;
+          right: 20px;
+          background: #ff5722;
+          color: white;
+          padding: 10px 15px;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+          z-index: 1001;
+        }
+      </style>
+<head>
+    <meta charset="UTF-8">
+    <title>ETH Denver 2025</title>
+    <!-- Include the JavaScript bundle -->
+    <script src="./dist/bundle.js"></script>
+    <script>
+        
+        async function runTest() {
+            try {
+                await UnityAO.test();
+                console.log('Test function executed successfully.');
+            } catch (error) {
+                console.error('Error executing test function:', error);
+            }
+        }
+
+       async function runGetProcessInfo() {
+            try {
+                const processInfo = await UnityAO.GetProcessInfo("JAHF1fo4MECRZZFKGcT0B6XM94Lqe-3FtB4Ht_kTEK0");
+                console.log('Process Info:', processInfo);
+            } catch (error) {
+                console.error('Error executing GetProcessInfo:', error);
+            }
+        }
+
+        async function runSendProcessMessage() {
+            try {
+                const response = await UnityAO.SendProcessMessage("YFoXmV8Le1N7jfpM1ldc4BhfAhVobN04ODlOMADH3is", "pingpong", "TestData");
+                console.log('Send Process Message Response:', response);
+            } catch (error) {
+                console.error('Error executing SendProcessMessage:', error);
+            }
+        }
+
+        async function runSendProcessDryrun() {
+            try {
+                const response = await UnityAO.SendProcessDryrun("NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8", "Balances", "");
+                console.log('Send Process Dryrun Response:', response);
+            } catch (error) {
+                console.error('Error executing SendProcessMessage:', error);
+            }
+        }
+
+        async function runPingPong() {
+            try {
+                const response = await UnityAO.SendProcessMessage("V6B7QPRht21wl7sBykVsIt914j8A-6mnXHBUDH-SjyI", "pingpong", "");
+                console.log('Send Process Message Response:', response);
+            } catch (error) {
+                console.error('Error executing SendProcessMessage:', error);
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>ETH Denver 2025</h1>
+    <button onclick="runTest()">Run Test Function</button>
+    <span/>
+    <p>PingPong</p>
+    <button onclick="runPingPong()">PingPong</button>
+    <p>Process Info</p>
+    <button onclick="runGetProcessInfo()">Get Info</button>
+    <p>Process Message</p>
+    <button onclick="runSendProcessMessage()">Send Message</button>
+    <p>Process DryRun</p>
+    <button onclick="runSendProcessDryrun()">Send Dryrun</button>
+    <!-- <div id="debug-console"></div>
+    <button id="debug-console-toggle">Toggle Debug Console</button> -->
+</body>
+<!-- Was giving me issues with the debug console, so I removed it for now -->
+<!-- <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var debugConsole = document.querySelector("#debug-console");
+    var debugConsoleToggle = document.querySelector("#debug-console-toggle");
+
+    // Function to log messages to the debug console
+    function logToConsole(message, type = 'log') {
+      var msgDiv = document.createElement('div');
+      msgDiv.textContent = `[${type.toUpperCase()}] ${message}`;
+      if (type === 'error') msgDiv.style.color = 'red';
+      else if (type === 'warning') msgDiv.style.color = 'yellow';
+      debugConsole.appendChild(msgDiv);
+      debugConsole.scrollTop = debugConsole.scrollHeight; // Auto-scroll
+    }
+
+    console.log = (msg) => logToConsole(msg, 'log');
+    console.error = (msg) => logToConsole(msg, 'error');
+    console.warn = (msg) => logToConsole(msg, 'warning');
+
+    debugConsoleToggle.onclick = () => {
+      debugConsole.classList.toggle('active');
+    };
+    
+    </script> -->
+</html>
