@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>ETH Denver 2025</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #434343;
+        }
+        #unity-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #unity-canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        #unity-footer {
+            display: flex;
+            justify-content: space-between;
+            width: 960px;
+            margin-top: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes moveBar {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .moving-bar {
+            width: 100px;
+            height: 8px;
+            background-color: #546D5C;
+            position: relative;
+            overflow: hidden;
+            animation: moveBar 1.5s ease-in-out infinite alternate;
+        }
+    </style>
+</head>
+<body>
+    <div id="unity-container" class="unity-desktop">
+        <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+        <div id="unity-warning"></div>
+        <div id="unity-footer">
+            <div id="unity-logo-title-footer"></div>
+            <div id="unity-fullscreen-button"></div>
+        </div>
+        <!-- <div id="loading-spinner" style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; top: 0; left: 0; width: 100%; background-color: #434343;">
+            <div style="border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+        </div> -->
+        <div id="loading-spinner" style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; top: 0; left: 0; width: 100%; background-color: #e9e9e9;">
+            <div class="moving-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingSpinner = document.querySelector("#loading-spinner");
+
+        function unityShowBanner(msg, type) {
+            var warningBanner = document.querySelector("#unity-warning");
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(function() {
+                    warningBanner.removeChild(div);
+                    updateBannerVisibility();
+                }, 5000);
+            }
+            updateBannerVisibility();
+        }
+
+        // ✅ Updated the correct Build folder path
+        var buildUrl = "./Build"; 
+
+        var loaderUrl = buildUrl + "/Build.loader.js";
+        var buildFiles = [
+            "Build.loader.js",
+            "Build.data.br",        // Accounted for compressed files
+            "Build.framework.js.br",
+            "Build.wasm.br"
+        ];
+
+        var config = {
+            dataUrl: buildUrl + "/Build.data.br",
+            frameworkUrl: buildUrl + "/Build.framework.js.br",
+            codeUrl: buildUrl + "/Build.wasm.br",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "FUDBear",
+            productName: "ETH Denver 2025",
+            productVersion: "1.0",
+            showBanner: unityShowBanner
+        };
+
+        // canvas.style.width = "95%";
+        // canvas.style.height = "90vh";
+        canvas.style.width = "390px";
+        canvas.style.height = "90vh";
+
+        document.querySelector("#unity-loading-bar").style.display = "block";
+
+        function checkBuildFiles() {
+            let filesLoaded = 0;
+            buildFiles.forEach(file => {
+                let url = buildUrl + "/" + file;
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        console.log(`✅ ${file} loaded successfully from: ${url}`);
+                        filesLoaded++;
+                        if (filesLoaded === buildFiles.length) {
+                            console.log("🚀 All Unity build files successfully loaded.");
+                            startUnityInstance();
+                        }
+                    } else {
+                        console.error(`❌ Failed to load ${file}: ${response.statusText} (URL: ${url})`);
+                    }
+                }).catch(err => {
+                    console.error(`❌ Error loading ${file}: ${err.message} (URL: ${url})`);
+                });
+            });
+        }
+
+        function startUnityInstance() {
+            var script = document.createElement("script");
+            script.src = loaderUrl;
+            script.onload = () => {
+                createUnityInstance(canvas, config, (progress) => {
+                    document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+                    console.log(`🟢 Unity loading progress: ${Math.round(progress * 100)}%`);
+                }).then((unityInstance) => {
+                    loadingSpinner.style.display = "none";
+                    document.querySelector("#unity-loading-bar").style.display = "none";
+                    document.querySelector("#unity-fullscreen-button").onclick = () => {
+                        unityInstance.SetFullscreen(1);
+                    };
+                    console.log("✅ Unity WebGL successfully initialized.");
+                }).catch((message) => {
+                    console.error("❌ Unity WebGL load failed:", message);
+                    alert("Unity WebGL failed to load. Check the console for errors.");
+                });
+            };
+            script.onerror = () => {
+                console.error("❌ Failed to load Build.loader.js.");
+            };
+            document.body.appendChild(script);
+        }
+
+        // Load bundle.js after Unity loads
+        function loadBundle() {
+            var bundleScript = document.createElement("script");
+            bundleScript.src = "./bundle.js";
+            bundleScript.onload = () => {
+                console.log("✅ bundle.js successfully loaded.");
+            };
+            bundleScript.onerror = () => {
+                console.error("❌ bundle.js failed to load.");
+            };
+            document.body.appendChild(bundleScript);
+        }
+
+        // Start checking for build files, then load bundle.js when Unity is ready
+        checkBuildFiles();
+        setTimeout(loadBundle, 5000); // Load bundle.js after 5s
+
+    </script>
+</body>
+</html>
